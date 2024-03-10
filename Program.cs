@@ -1,3 +1,5 @@
+using AutoMapper;
+using InvestSense_API;
 using InvestSense_API.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +12,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+IMapper Mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(Mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
