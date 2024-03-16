@@ -26,14 +26,19 @@ namespace InvestSense_API.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAll()
 		{
-			var stocks = await _stockRepository.GetAllAsync();
+			
+			var stocks = await _stockRepository.GetAllWithCommentsAsync();
 			var stocksDTO = stocks.Select(s => _mapper.Map<StockDTO>(s)).ToList() ;
 			return Ok(stocksDTO);
 		}
 
-		[HttpGet("{id}")]
+		[HttpGet("{id:int}")]
 		public async Task<IActionResult> GetById([FromRoute] int id)
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			var stock = await _stockRepository.GetByIdAsync(id);
 			if (stock == null)
 			{
@@ -47,14 +52,22 @@ namespace InvestSense_API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Create([FromBody] CreateStockRequestDTO createStockDTO )
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			var stockCreated = _mapper.Map<Stock>(createStockDTO);
 			await _stockRepository.CreateAsync(stockCreated);
 			return CreatedAtAction(nameof(GetById), new { stockCreated.Id }, createStockDTO);
 		}
 
-		[HttpPut("{id}")]
+		[HttpPut("{id:int}")]
 		public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDTO updateStockRequestDTO)
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			var existingStock = await _stockRepository.GetByIdAsync(id);
 			if(existingStock == null)
 			{
@@ -68,9 +81,13 @@ namespace InvestSense_API.Controllers
 		}
 
 
-		[HttpDelete("{id}")]
+		[HttpDelete("{id:int}")]
 		public async Task<IActionResult> Delete([FromRoute] int id)
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			var existingStock = await _stockRepository.GetByIdAsync(id);
 			if (existingStock == null)
 			{
@@ -80,7 +97,7 @@ namespace InvestSense_API.Controllers
 			await _stockRepository.DeleteAsync(id);
 
 
-			return NoContent();
+			return Ok();
 		}
 
 	}

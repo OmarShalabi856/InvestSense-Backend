@@ -2,6 +2,7 @@
 using InvestSense_API.DTOs;
 using InvestSense_API.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace InvestSense_API.Services
 {
@@ -19,6 +20,16 @@ namespace InvestSense_API.Services
 			await context.SaveChangesAsync();
 			return existingEntity;
 
+		}
+
+		public  async Task<List<Stock>> GetAllWithCommentsAsync()
+		{
+			return await context.Stock.Include(s=>s.Comments).ToListAsync();	
+		}
+
+		public async Task<bool> CheckStockExists(int stockId)
+		{
+			return await context.Stock.AnyAsync(s=>s.Id==stockId);
 		}
 	}
 }

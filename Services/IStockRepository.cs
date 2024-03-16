@@ -5,6 +5,9 @@ namespace InvestSense_API.Services
 {
 	public interface IStockRepository:IRepository<Stock>
 	{
-		public Task<Stock?> UpdateAsync(int id,UpdateStockRequestDTO updatedEntity);	
+		public Task<Stock?> UpdateAsync(int id,UpdateStockRequestDTO updatedEntity);
+
+		public Task<List<Stock>> GetAllWithCommentsAsync();
+		Task<bool> CheckStockExists(int stockId);
 	}
 }

@@ -3,6 +3,7 @@ using InvestSense_API;
 using InvestSense_API.Data;
 using InvestSense_API.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,11 @@ builder.Services.AddSingleton(Mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IStockRepository,StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+	options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 
 var app = builder.Build();
 
