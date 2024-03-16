@@ -18,6 +18,15 @@ namespace InvestSense_API
 
 				config.CreateMap<Stock, CreateStockRequestDTO>();
 				config.CreateMap<CreateStockRequestDTO, Stock>();
+
+				config.CreateMap<Comment, CommentDTO>();
+				config.CreateMap<CommentDTO, Comment>();
+
+				config.CreateMap<Comment, CreateCommentRequestDTO>();
+				config.CreateMap<CreateCommentRequestDTO, Comment>();
+
+
+				
 			});
 
 			return mappingConfig;

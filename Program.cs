@@ -1,6 +1,7 @@
 using AutoMapper;
 using InvestSense_API;
 using InvestSense_API.Data;
+using InvestSense_API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 IMapper Mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(Mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IStockRepository,StockRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using InvestSense_API.Data;
 using InvestSense_API.DTOs;
 using InvestSense_API.Models;
+using InvestSense_API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,16 +15,18 @@ namespace InvestSense_API.Controllers
 	{
 		public readonly ApplicationDbContext _context;
 		public readonly IMapper _mapper;
-		public StockController(ApplicationDbContext context,IMapper mapper)
+		public readonly IStockRepository _stockRepository;
+		public StockController(ApplicationDbContext context,IMapper mapper,IStockRepository stockRepository)
 		{ 
 			_context = context;
 			_mapper = mapper;
+			_stockRepository = stockRepository;	
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Get()
+		public async Task<IActionResult> GetAll()
 		{
-			var stocks = await _context.Stock.ToListAsync();
+			var stocks = await _stockRepository.GetAllAsync();
 			var stocksDTO = stocks.Select(s => _mapper.Map<StockDTO>(s)).ToList() ;
 			return Ok(stocksDTO);
 		}
@@ -31,7 +34,7 @@ namespace InvestSense_API.Controllers
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetById([FromRoute] int id)
 		{
-			var stock = await _context.Stock.FindAsync(id);
+			var stock = await _stockRepository.GetByIdAsync(id);
 			if (stock == null)
 			{
 				return NotFound();
@@ -42,31 +45,23 @@ namespace InvestSense_API.Controllers
 
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromRoute] CreateStockRequestDTO createStockDTO )
+		public async Task<IActionResult> Create([FromBody] CreateStockRequestDTO createStockDTO )
 		{
 			var stockCreated = _mapper.Map<Stock>(createStockDTO);
-			await _context.AddAsync(stockCreated);
-			await _context.SaveChangesAsync();
+			await _stockRepository.CreateAsync(stockCreated);
 			return CreatedAtAction(nameof(GetById), new { stockCreated.Id }, createStockDTO);
 		}
 
 		[HttpPut("{id}")]
 		public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDTO updateStockRequestDTO)
 		{
-			var existingStock = await _context.Stock.FindAsync(id);
+			var existingStock = await _stockRepository.GetByIdAsync(id);
 			if(existingStock == null)
 			{
 				return NotFound();
 			}
 
-			existingStock.Symbol = updateStockRequestDTO.Symbol;
-			existingStock.CompanyName = updateStockRequestDTO.CompanyName;
-			existingStock.Price = updateStockRequestDTO.Price;
-			existingStock.LastDividend = updateStockRequestDTO.LastDividend;
-			existingStock.Industry = updateStockRequestDTO.Industry;
-			existingStock.MarketCap = updateStockRequestDTO.MarketCap;
-
-			await _context.SaveChangesAsync();
+			await _stockRepository.UpdateAsync(id, updateStockRequestDTO);
 
 
 			return Ok(_mapper.Map<StockDTO>(existingStock));
@@ -76,15 +71,13 @@ namespace InvestSense_API.Controllers
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> Delete([FromRoute] int id)
 		{
-			var existingStock = await _context.Stock.FindAsync(id);
+			var existingStock = await _stockRepository.GetByIdAsync(id);
 			if (existingStock == null)
 			{
 				return NotFound();
 			}
 
-			_context.Remove(existingStock);
-
-			await _context.SaveChangesAsync();
+			await _stockRepository.DeleteAsync(id);
 
 
 			return NoContent();
