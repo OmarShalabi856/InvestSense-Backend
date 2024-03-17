@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InvestSense_API.Data;
 using InvestSense_API.DTOs;
+using InvestSense_API.Helpers;
 using InvestSense_API.Models;
 using InvestSense_API.Services;
 using Microsoft.AspNetCore.Http;
@@ -24,10 +25,10 @@ namespace InvestSense_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+		public async Task<IActionResult> GetAll([FromQuery] StockQueryObject stockQueryObject)
 		{
 			
-			var stocks = await _stockRepository.GetAllWithCommentsAsync();
+			var stocks = await _stockRepository.GetAllWithCommentsAsync(stockQueryObject);
 			var stocksDTO = stocks.Select(s => _mapper.Map<StockDTO>(s)).ToList() ;
 			return Ok(stocksDTO);
 		}
@@ -73,8 +74,9 @@ namespace InvestSense_API.Controllers
 			{
 				return NotFound();
 			}
-
-			await _stockRepository.UpdateAsync(id, updateStockRequestDTO);
+			var updatedStock = _mapper.Map<Stock>(updateStockRequestDTO);
+			updatedStock.Id = id;
+			await _stockRepository.UpdateAsync(id, updatedStock);
 
 
 			return Ok(_mapper.Map<StockDTO>(existingStock));

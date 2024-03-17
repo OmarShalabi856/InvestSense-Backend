@@ -83,5 +83,26 @@ namespace InvestSense_API.Controllers
 
 			return Ok();
 		}
+
+		[HttpPut("{id:int}")]
+		public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDTO updateCommentRequestDTO)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+			var existingComment = await _commentRepository.GetByIdAsync(id);
+			if (existingComment == null)
+			{
+				return NotFound();
+			}
+			var updatedComment = _mapper.Map<Comment>(updateCommentRequestDTO);
+			updatedComment.Id = id;
+			await _commentRepository.UpdateAsync(id, updatedComment);
+
+
+			return Ok(_mapper.Map<StockDTO>(existingComment));
+		}
+
 	}
 }
