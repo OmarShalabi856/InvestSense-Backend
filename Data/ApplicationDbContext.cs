@@ -18,6 +18,19 @@ namespace InvestSense_API.Data
 		{
 			base.OnModelCreating(builder);
 
+			builder.Entity<Portfolio>(x => x.HasKey(p => new { p.AppUserId, p.StockId }));
+
+			builder.Entity<Portfolio>()
+				.HasOne(x => x.AppUser)
+				.WithMany(x => x.Portfolios)
+				.HasForeignKey(x => x.AppUserId);
+
+
+			builder.Entity<Portfolio>()
+				.HasOne(x => x.Stock)
+				.WithMany(x => x.Portfolios)
+				.HasForeignKey(x => x.StockId);
+
 			List<IdentityRole> roles = new List<IdentityRole>()
 			{
 				new IdentityRole()
@@ -39,6 +52,8 @@ namespace InvestSense_API.Data
 
 		public DbSet<Stock> Stock { get; set; }
 		public DbSet<Comment> Comment { get; set; }
+
+		public DbSet<Portfolio> Portfolio { get; set; }
 
 
 	}

@@ -8,8 +8,9 @@
 		public double Price { get; set; }
 		public double LastDividend { get; set;}
 		public string Industry { get; set; } = string.Empty;
-		public long MarketCap { get; set; } 
+		public long MarketCap { get; set; }
 
+		public List<Portfolio> Portfolios { get; set; } = new List<Portfolio>();
 		public List<Comment> Comments { get; set; } = [];
 
 	}
