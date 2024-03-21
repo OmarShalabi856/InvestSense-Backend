@@ -8,6 +8,7 @@ namespace InvestSense_API.Services
 	{
 	
 		public Task<List<Stock>> GetAllWithCommentsAsync(StockQueryObject stockQueryObject);
-		Task<bool> CheckStockExists(int stockId);
+		public Task<bool> CheckStockExists(int stockId);
+		public Task<Stock?> GetStockBySymbol(string symbol);	
 	}
 }

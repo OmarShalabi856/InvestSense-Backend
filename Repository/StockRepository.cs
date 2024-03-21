@@ -45,5 +45,10 @@ namespace InvestSense_API.Services
 		{
 			return await context.Stock.AnyAsync(s=>s.Id==stockId);
 		}
+
+		public async Task<Stock?> GetStockBySymbol(string symbol)
+		{
+			return await context.Stock.FirstOrDefaultAsync(s => s.Symbol.Equals(symbol));
+		}
 	}
 }
