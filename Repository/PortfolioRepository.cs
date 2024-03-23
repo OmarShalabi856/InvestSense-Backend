@@ -17,6 +17,20 @@ namespace InvestSense_API.Repository
 			_context = context;
 		}
 
+		public async Task<Portfolio?> DeleteStockFromPortfolio(AppUser appUser, Stock filteredStock)
+		{
+			var portfolioToDelete = await _context.Portfolio.FirstOrDefaultAsync(p => p.AppUserId == appUser.Id && p.StockId == filteredStock.Id);
+
+			if (portfolioToDelete != null)
+			{
+				_context.Portfolio.Remove(portfolioToDelete);
+				await _context.SaveChangesAsync();
+				return portfolioToDelete!;
+			}
+
+			return null;
+		}
+
 		public async Task<List<Stock>> GetUserPortfolio(AppUser user)
 		{
 			return await _context.Portfolio

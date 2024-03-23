@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using InvestSense_API.Data;
 using InvestSense_API.DTOs;
+using InvestSense_API.Extensions;
+using InvestSense_API.Helpers;
 using InvestSense_API.Models;
 using InvestSense_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvestSense_API.Controllers
@@ -16,18 +20,23 @@ namespace InvestSense_API.Controllers
 		public readonly IMapper _mapper;
 		public readonly ICommentRepository _commentRepository;
 		public readonly IStockRepository _stockRepository;
-		public CommentController(ApplicationDbContext context, IMapper mapper, ICommentRepository commentRepository, IStockRepository stockRepository)
+		public readonly UserManager<AppUser> _userManager;
+		public readonly IFMP _FMPService;
+		public CommentController(ApplicationDbContext context, IMapper mapper, ICommentRepository commentRepository, IStockRepository stockRepository,UserManager<AppUser> userManager,IFMP FMPService)
 		{
 			_context = context;
 			_mapper = mapper;
 			_commentRepository = commentRepository;
 			_stockRepository = stockRepository;
+			_userManager = userManager;
+			_FMPService = FMPService;
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+		[Authorize]
+		public async Task<IActionResult> GetAll([FromQuery] CommentQueryObject commentQueryObject)
 		{
-			var comments = await _commentRepository.GetAllAsync();
+			var comments = await _commentRepository.GetAllAsync(commentQueryObject);
 			var commentsDTO = comments.Select(c => _mapper.Map<CommentDTO>(c)).ToList();
 			return Ok(commentsDTO);
 		}
@@ -48,19 +57,29 @@ namespace InvestSense_API.Controllers
 			return Ok(commentDTO);
 		}
 
-		[HttpPost("{stockId:int}")]
-		public async Task<IActionResult> Create([FromRoute] int stockId, [FromBody] CreateCommentRequestDTO createdCommentDTO)
+		[HttpPost("{stockSymbol:alpha}")]
+		[Authorize]
+		public async Task<IActionResult> Create([FromRoute] string stockSymbol, [FromBody] CreateCommentRequestDTO createdCommentDTO)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
 			}
-			if (!await _stockRepository.CheckStockExists(stockId))
+			var stock = await _stockRepository.GetStockBySymbol(stockSymbol);
+			if (stock == null)
 			{
-				return BadRequest("Stock Does Not Exist!");
+				stock = await _FMPService.FindStockBySymbolAsync(stockSymbol);
+				if(stock == null)
+				{
+					return BadRequest("Stock Does Not Exist!");
+				}
+				await _stockRepository.CreateAsync(stock);
 			}
+			var userName = User.GetUserName();
+			var appUser = await _userManager.FindByNameAsync(userName);
 			var commentCreated = _mapper.Map<Comment>(createdCommentDTO);
-			commentCreated.StockId = stockId;
+			commentCreated.AppUserId = appUser.Id;
+			commentCreated.StockId = stock.Id;
 			await _commentRepository.CreateAsync(commentCreated);
 			return CreatedAtAction(nameof(GetById), new { commentCreated.Id }, createdCommentDTO);
 		}

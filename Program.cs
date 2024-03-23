@@ -33,8 +33,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IFMP, FMP>();
 builder.Services.AddScoped<IAuthentication, Authentication>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddHttpClient<IFMP,FMP>();
 
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
@@ -86,6 +88,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(options => options
+.AllowAnyHeader()
+.AllowAnyMethod()
+.AllowCredentials()
+//.WithOrigins("https://localhost:3000")
+.SetIsOriginAllowed(t => true));
 
 app.UseAuthentication();
 app.UseAuthorization();

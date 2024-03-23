@@ -16,13 +16,15 @@ namespace InvestSense_API.Controllers
 		public readonly UserManager<AppUser> _userManager;
 		public readonly IStockRepository _stockRepository;
 		public readonly IPortfolioRepository _portfolioRepository;
+		public readonly IFMP _FMPService;
 
 
-		public PortfolioController(UserManager<AppUser> userManager,IStockRepository stockRepository,IPortfolioRepository portfolioRepository)
+		public PortfolioController(UserManager<AppUser> userManager,IStockRepository stockRepository,IPortfolioRepository portfolioRepository,IFMP FMPService)
 		{
 			_userManager = userManager;
 			_stockRepository = stockRepository;
 			_portfolioRepository = portfolioRepository;
+			_FMPService = FMPService;	
 		}
 
 		[HttpGet]
@@ -59,8 +61,16 @@ namespace InvestSense_API.Controllers
 				{
 					return NotFound("User Not Found!");
 				}
-				var stock = _stockRepository.GetStockBySymbol(symbol);
-				if (stock == null) return BadRequest("Stock Not Found!");
+				var stock = await _stockRepository.GetStockBySymbol(symbol);
+				if (stock == null)
+				{
+					stock = await _FMPService.FindStockBySymbolAsync(symbol);
+					if (stock == null)
+					{
+						return BadRequest("Stock Does Not Exist!");
+					}
+					await _stockRepository.CreateAsync(stock);
+				}
 
 				var userPortfolio = await _portfolioRepository.GetUserPortfolio(appUser);
 
@@ -83,6 +93,41 @@ namespace InvestSense_API.Controllers
 				}
 
 				return Ok(portfilioCreated);	
+
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+
+
+		}
+
+		[HttpDelete]
+		[Authorize]
+		public async Task<IActionResult> DeletePortfolio(string symbol)
+		{
+			try
+			{
+				var userName = User.GetUserName();
+				var appUser = await _userManager.FindByNameAsync(userName);
+				if (appUser == null)
+				{
+					return NotFound("User Not Found!");
+				}
+				
+
+				var userPortfolio = await _portfolioRepository.GetUserPortfolio(appUser);
+
+				var filteredStock = userPortfolio.FirstOrDefault(s=>s.Symbol.ToLower().Equals(symbol.ToLower()));
+				if (filteredStock==null)
+				{
+					return BadRequest("Stock Not Found In The Portfolio");
+				}
+
+				var portfolioDeleted = await _portfolioRepository.DeleteStockFromPortfolio(appUser,filteredStock);
+
+				return Ok(portfolioDeleted);
 
 			}
 			catch (Exception ex)

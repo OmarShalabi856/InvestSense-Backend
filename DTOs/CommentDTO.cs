@@ -18,5 +18,8 @@ namespace InvestSense_API.DTOs
 
 		[Required(ErrorMessage = "StockId is required")]
 		public int StockId { get; set; }
+
+
+		public string CreatedBy { get; set; } = string.Empty;
 	}
 }

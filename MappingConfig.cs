@@ -16,13 +16,14 @@ namespace InvestSense_API
 				config.CreateMap<Stock, StockDTO>();
 				config.CreateMap<StockDTO, Stock>();
 
-				//config.CreateMap<Stock,StockDTO>()
-				//.ForMember(dest=>dest)
-
 				config.CreateMap<Stock, CreateStockRequestDTO>();
 				config.CreateMap<CreateStockRequestDTO, Stock>();
 
-				config.CreateMap<Comment, CommentDTO>();
+				config.CreateMap<FMPStock, Stock>();
+
+				config.CreateMap<Comment, CommentDTO>()
+				   .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.AppUser != null ? src.AppUser.UserName : null));
+
 				config.CreateMap<CommentDTO, Comment>();
 
 				config.CreateMap<Comment, CreateCommentRequestDTO>();

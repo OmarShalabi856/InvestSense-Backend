@@ -12,7 +12,7 @@ namespace InvestSense_API.Services
 
 		public  async Task<List<Stock>> GetAllWithCommentsAsync(StockQueryObject stockQueryObject)
 		{
-			var stocks= context.Stock.Include(s=>s.Comments).AsQueryable();
+			var stocks= context.Stock.Include(s=>s.Comments).ThenInclude(i=>i.AppUser).AsQueryable();
 
 			int skipNumber = (stockQueryObject.PageNumber - 1) * stockQueryObject.PageSize;
 
