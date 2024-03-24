@@ -33,6 +33,12 @@ namespace InvestSense_API.Services
 			
 		}
 
+		public async Task<bool> EmailExists(string email)
+		{
+			return await _userManager.FindByEmailAsync(email) != null;
+
+		}
+
 		public  AppUser? GetUser(LoginRequest loginRequest)
 		{
 			return  _userManager.Users.FirstOrDefault(u => u.Email.Equals(loginRequest.Email));

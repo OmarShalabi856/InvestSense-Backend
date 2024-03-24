@@ -57,7 +57,7 @@ namespace InvestSense_API.Controllers
 			return Ok(commentDTO);
 		}
 
-		[HttpPost("{stockSymbol:alpha}")]
+		[HttpPost("{stockSymbol}")]
 		[Authorize]
 		public async Task<IActionResult> Create([FromRoute] string stockSymbol, [FromBody] CreateCommentRequestDTO createdCommentDTO)
 		{

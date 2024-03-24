@@ -13,5 +13,6 @@ namespace InvestSense_API.DTOs
 		[MinLength(5, ErrorMessage = "Content should be at least 5 characters")]
 		[MaxLength(300, ErrorMessage = "Content should be at most 300 characters")]
 		public string Content { get; set; } = string.Empty;
+
 	}
 }

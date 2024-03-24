@@ -11,6 +11,8 @@ namespace InvestSense_API.Services
 
 		public Task<IdentityResult> AssignRole(AppUser user, string roleName);
 
+		public Task<bool> EmailExists(string email);
+
 		public Task<SignInResult?> CheckPassword(AppUser user,string password);
 
 

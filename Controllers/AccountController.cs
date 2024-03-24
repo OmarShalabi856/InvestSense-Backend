@@ -31,8 +31,12 @@ namespace InvestSense_API.Controllers
 
 				}
 
-
 				var createdUser = new AppUser() { Email = registerRequest.Email, UserName = registerRequest.Username };
+
+				if (await _authentication.EmailExists(registerRequest.Email))
+				{
+					return BadRequest("Email Is Already Taken!");
+				}
 
 				var createdUserResult = await _authentication.CreateUser(createdUser, registerRequest.Password);
 
@@ -40,14 +44,14 @@ namespace InvestSense_API.Controllers
 
 				if (!createdUserResult.Succeeded)
 				{
-					return StatusCode(500, createdUserResult.Errors);
+					return BadRequest(createdUserResult.Errors);
 				}
 
 				var userAssignedRoleResult = await AssignRole(createdUser, "User");
 
 				if (!userAssignedRoleResult.Succeeded)
 				{
-					return StatusCode(500, userAssignedRoleResult.Errors);
+					return BadRequest(userAssignedRoleResult.Errors);
 				}
 
 
