@@ -51,7 +51,7 @@ namespace InvestSense_API.Controllers
 
 		[HttpPost]
 		[Authorize]
-		public async Task<IActionResult> AddPortfolio(string symbol)
+		public async Task<IActionResult> AddPortfolio([FromQuery] string symbol)
 		{
 			try
 			{
@@ -76,7 +76,7 @@ namespace InvestSense_API.Controllers
 
 				if (userPortfolio.Any(i => i.Symbol.ToLower().Equals(symbol.ToLower())))
 				{
-					return BadRequest("Cannot Add An Exisiting To The Portfolio");
+					return BadRequest("Cannot Add An Exisiting Stock To Portfolio");
 				}
 
 				var portfolioModel = new Portfolio

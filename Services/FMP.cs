@@ -24,7 +24,8 @@ namespace InvestSense_API.Services
 		{
 			try
 			{
-				var result = await _httpClient.GetAsync($"{_config["API:FMP"]}/profile/{symbol}?{_config["APIKeys:FMP"]}");
+				var url = $"{_config["API:FMP"]}/profile/{symbol}?&apikey={_config["APIKeys:FMP"]}";
+				var result = await _httpClient.GetAsync(url);
 
 				if (result.IsSuccessStatusCode)
 				{
@@ -34,7 +35,8 @@ namespace InvestSense_API.Services
 					if (fmpStock != null)
 					{
 						var stockModel = _mapper.Map<Stock>(fmpStock);
-						//await _stockRepository.CreateAsync(stockModel);
+						if (stockModel.Industry == null)
+							stockModel.Industry = "";
 						return stockModel;
 					}
 					return null;

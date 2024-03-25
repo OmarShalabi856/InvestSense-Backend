@@ -12,7 +12,7 @@ namespace InvestSense_API.Services
 			var comments=  context.Comment.Include(i=>i.AppUser).AsQueryable();
 			if (!string.IsNullOrEmpty(commentQueryObject.Symbol))
 			{
-				comments = comments.Where(s => s.Stock!.Symbol.Equals(commentQueryObject.Symbol, StringComparison.OrdinalIgnoreCase));
+				comments = comments.Where(s => s.Stock!.Symbol.Equals(commentQueryObject.Symbol));
 			}
 
 			if (commentQueryObject.Descending == true)
