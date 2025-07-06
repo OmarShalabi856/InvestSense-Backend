@@ -95,12 +95,11 @@ app.UseCors(options => options
  .WithOrigins(frontendurl)
     .AllowAnyHeader()
     .AllowAnyMethod()
-    .AllowCredentials()
-    .SetIsOriginAllowed(_ => true));
+    .AllowCredentials());
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapGet("/",()=> "running");
 app.Run();
