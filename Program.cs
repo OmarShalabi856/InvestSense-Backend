@@ -89,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-string frontendurl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000/";
+string frontendurl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000";
 
 app.UseCors(options => options
  .WithOrigins(frontendurl)
