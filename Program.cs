@@ -86,10 +86,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+string frontendurl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000/";
+
 app.UseCors(options => options
+ .WithOrigins(frontendurl)
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
